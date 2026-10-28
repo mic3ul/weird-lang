@@ -7,7 +7,7 @@ import subprocess
 import tempfile
 import unittest
 
-ROOT = pathlib.Path(__file__).resolve().parents[4]
+ROOT = pathlib.Path(__file__).resolve().parents[3]
 HANDLER = ROOT / "examples" / "whatsapp-bot" / "handler.wrd"
 WEIRD = pathlib.Path(os.environ.get("WEIRD_BIN", ROOT / "build" / "weird"))
 
