@@ -9,12 +9,15 @@ import { spawn } from "node:child_process";
 import { mkdtemp, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import process from "node:process";
 
 const logger = pino({ level: process.env.LOG_LEVEL || "info" });
-const WEIRD_BIN = path.resolve(process.env.WEIRD_BIN || "../../../../build/weird");
-const HANDLER = path.resolve(process.env.WEIRD_HANDLER || "../handler.wrd");
-const STATE_DIR = path.resolve(process.env.WEIRD_STATE_DIR || "./auth");
+const BRIDGE_DIR = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(BRIDGE_DIR, "../../..");
+const WEIRD_BIN = path.resolve(process.env.WEIRD_BIN || path.join(REPO_ROOT, "build/weird"));
+const HANDLER = path.resolve(process.env.WEIRD_HANDLER || path.join(BRIDGE_DIR, "../handler.wrd"));
+const STATE_DIR = path.resolve(process.env.WEIRD_STATE_DIR || path.join(BRIDGE_DIR, "auth"));
 const PREFIX = "!";
 const COOLDOWN_MS = 1800;
 const lastCommandAt = new Map();
