@@ -1,6 +1,7 @@
 # Example: call lodash.chunk from WEIRD.
 # Run from this directory after npm install and setting the two environment variables.
 import "external.wrd"
+import json
 
 let chunks = external.call("lodash", "chunk", [[1, 2, 3, 4, 5], 2])
 print(json.stringify(chunks))
