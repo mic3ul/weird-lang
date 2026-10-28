@@ -46,6 +46,16 @@ class HandlerTests(unittest.TestCase):
     def test_ping(self):
         self.assertEqual(run_handler(event("!ping"))["reply"], "Pong.")
 
+    def test_groupinfo_reports_metadata(self):
+        result = run_handler(event(
+            "!groupinfo",
+            isGroup=True,
+            subject="Engineering",
+            participants=["100@s.whatsapp.net", "200@s.whatsapp.net"],
+        ))
+        self.assertIn("Group: Engineering", result["reply"])
+        self.assertIn("Members: 2", result["reply"])
+
     def test_non_group_admin_action_is_denied(self):
         result = run_handler(event(
             "!kick @member",
