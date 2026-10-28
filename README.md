@@ -14,6 +14,8 @@ WEIRD is a C-based scripting language and bytecode runtime intended for command-
 
 ## Build and run
 
+**Repository limitation:** the complete WEIRD 0.6.0 C source tree has not yet been committed here, so the commands below cannot currently build this checkout. They describe the expected workflow once `src/`, `Makefile`, and the runtime tests have been restored. The baseline source archive was tested separately; those results do not mean this GitHub checkout builds.
+
 Requirements: a C compiler (GCC or Clang), make, a POSIX-compatible C library, libm, and Python 3. libcurl development files are optional for HTTP(S).
 
 ```sh
@@ -37,7 +39,7 @@ The target is a maintainable bot whose commands and business rules live in WEIRD
 
 ## Project status
 
-The language baseline and proposed bot integration are not the same thing. Planned features are tracked in [the development roadmap](docs/DEVELOPMENT_ROADMAP.md) and [the bot architecture](docs/WHATSAPP_BOT_ARCHITECTURE.md). Features are considered complete only after implementation, tests, and documentation are present.
+The language baseline and proposed bot integration are not the same thing. Planned features are tracked in [the development roadmap](docs/DEVELOPMENT_ROADMAP.md) and [the bot architecture](docs/WHATSAPP_BOT_ARCHITECTURE.md). At present, GitHub Actions checks the WhatsApp bridge JavaScript syntax and package metadata only; it does not compile WEIRD or run the runtime integration tests. Features are considered complete only after implementation, tests, and documentation are present.
 
 ## Related project
 
