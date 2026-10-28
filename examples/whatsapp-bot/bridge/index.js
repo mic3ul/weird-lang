@@ -147,27 +147,42 @@ async function start() {
           subject: metadata?.subject || ""
         };
         const output = await runWeird(context);
-        if (output?.reply) await sock.sendMessage(chatId, { text: String(output.reply).slice(0, 4000) }, { quoted: message });
+        const action = String(output?.action || "none");
 
-        if (!output?.action || output.action === "none") continue;
+        if (action === "none") {
+          if (output?.reply) {
+            await sock.sendMessage(chatId, { text: String(output.reply).slice(0, 4000) }, { quoted: message });
+          }
+          continue;
+        }
+
         if (!isGroup || !context.isAdmin || !context.isBotAdmin) {
           await sock.sendMessage(chatId, { text: "Action denied: admin permissions changed or are missing." }, { quoted: message });
           continue;
         }
 
-        if (output.action === "tagall") {
+        if (action === "tagall") {
           const ids = context.participants.slice(0, 256);
           const mentions = ids.length ? ids.map(id => `@${id.split("@")[0]}`).join(" ") : "";
           await sock.sendMessage(chatId, { text: mentions || "No participants found.", mentions: ids }, { quoted: message });
-        } else if (["kick", "promote", "demote"].includes(output.action)) {
+          continue;
+        }
+
+        if (["kick", "promote", "demote"].includes(action)) {
           const target = jidNormalizedUser(String(output.target || ""));
           if (!target || !context.participants.includes(target) || target === botJid || target === sender) {
             await sock.sendMessage(chatId, { text: "Invalid target. Mention a different current group member." }, { quoted: message });
             continue;
           }
-          const operation = { kick: "remove", promote: "promote", demote: "demote" }[output.action];
+          const operation = { kick: "remove", promote: "promote", demote: "demote" }[action];
           await sock.groupParticipantsUpdate(chatId, [target], operation);
+          if (output?.reply) {
+            await sock.sendMessage(chatId, { text: String(output.reply).slice(0, 4000) }, { quoted: message });
+          }
+          continue;
         }
+
+        logger.warn({ action, chatId }, "Ignored unsupported WEIRD action");
       } catch (error) {
         logger.error({ err: error }, "Command processing failed");
         await sock.sendMessage(chatId, { text: "Command failed. Check the bot logs." }, { quoted: message }).catch(() => {});
