@@ -28,9 +28,9 @@ function runWeird(event) {
       await writeFile(eventPath, JSON.stringify(event), { mode: 0o600 });
       const child = spawn(WEIRD_BIN, ["run", HANDLER, eventPath], {
         stdio: ["ignore", "pipe", "pipe"],
-        env: { ...process.env },
-        timeout: 8000
+        env: { ...process.env }
       });
+      const timeout = setTimeout(() => child.kill("SIGKILL"), 8000);
       let stdout = "";
       let stderr = "";
       child.stdout.setEncoding("utf8");
@@ -43,8 +43,12 @@ function runWeird(event) {
         stderr += chunk;
         if (stderr.length > 256 * 1024) child.kill("SIGKILL");
       });
-      child.on("error", reject);
+      child.on("error", error => {
+        clearTimeout(timeout);
+        reject(error);
+      });
       child.on("close", code => {
+        clearTimeout(timeout);
         if (code !== 0) return reject(new Error(`WEIRD exited ${code}: ${stderr.slice(0, 500)}`));
         try {
           const line = stdout.trim().split("\n").filter(Boolean).at(-1);
