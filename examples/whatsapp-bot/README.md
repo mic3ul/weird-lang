@@ -11,6 +11,20 @@ This directory contains the first WEIRD-side command-policy prototype. The Whats
 
 The handler expects normalized event JSON fields: `text`, `sender`, `isGroup`, `isAdmin`, `isBotAdmin`, and `mentionedJid`. The adapter must validate the target and permissions against current group metadata before carrying out any action.
 
+## Run the prototype
+
+After the WEIRD runtime has been built at the repository root, install the bridge dependencies and start it:
+
+```sh
+cd examples/whatsapp-bot/bridge
+npm install
+npm start
+```
+
+The bridge reads `WEIRD_BIN`, `WEIRD_HANDLER`, and `WEIRD_STATE_DIR` if you need custom paths. Defaults are resolved relative to this bridge file, not the shell's current directory. Pairing credentials are stored in `bridge/auth/`; keep that directory private and never upload it. Follow the QR pairing prompt in the terminal. The adapter is experimental and has not been validated against a live account in this repository.
+
+Moderation confirmations are sent only after the adapter reports that the requested group operation completed. `!tagall` mentions at most 256 participants per message.
+
 ## Important status
 
 This is a development prototype, not a production-ready bot. The current public repository still needs the WEIRD 0.6.0 interpreter source and automated runtime tests before this script can be claimed as executable. WhatsApp support depends on the adapter and the account/session being used. Baileys is an unofficial WhatsApp Web integration and can be affected by upstream changes or account restrictions.
