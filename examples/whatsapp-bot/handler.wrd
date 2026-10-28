@@ -1,0 +1,75 @@
+# WEIRD-side command policy and response logic.
+# The Node.js adapter passes one JSON event file path as the first script argument.
+# This script does not connect to WhatsApp directly.
+
+import args
+import fs
+import json
+
+fn result(reply, action, target):
+    return {
+        "reply": reply,
+        "action": action,
+        "target": target
+    }
+
+fn handle(event):
+    let text = strip(get(event, "text", ""))
+    let sender = get(event, "sender", "")
+    let is_group = get(event, "isGroup", false)
+    let is_admin = get(event, "isAdmin", false)
+    let bot_admin = get(event, "isBotAdmin", false)
+
+    if text == "":
+        return result("", "none", "")
+
+    let words = split(text, " ")
+    let command = lower(words[0])
+
+    if command == "!ping":
+        return result("Pong.", "none", "")
+
+    if command == "!menu":
+        return result("WEIRD BOT\n!ping - check response\n!groupinfo - show group status\n!tagall - mention group members (admins only)\n!kick @mention - remove a member (admins only)\n!promote @mention - promote a member (admins only)\n!demote @mention - demote a member (admins only)", "none", "")
+
+    if command == "!groupinfo":
+        if not is_group:
+            return result("This command only works in groups.", "none", "")
+        return result("Group command context is available. More metadata will be added by the adapter.", "none", "")
+
+    if command == "!tagall":
+        if not is_group:
+            return result("This command only works in groups.", "none", "")
+        if not is_admin:
+            return result("Only group admins can use this command.", "none", "")
+        return result("", "tagall", "")
+
+    if command == "!kick" or command == "!promote" or command == "!demote":
+        if not is_group:
+            return result("This command only works in groups.", "none", "")
+        if not is_admin:
+            return result("Only group admins can use this command.", "none", "")
+        if not bot_admin:
+            return result("The bot must be a group admin first.", "none", "")
+        let target = get(event, "mentionedJid", "")
+        if target == "":
+            return result("Mention one member to target.", "none", "")
+        if target == sender:
+            return result("You cannot target yourself with this command.", "none", "")
+        if command == "!kick":
+            return result("Removing the mentioned member.", "kick", target)
+        if command == "!promote":
+            return result("Promoting the mentioned member.", "promote", target)
+        return result("Demoting the mentioned member.", "demote", target)
+
+    return result("", "none", "")
+
+let argv = args.list()
+if len(argv) < 1:
+    print(json.stringify({"reply": "Missing event file.", "action": "none", "target": ""}))
+else:
+    try:
+        let event = json.parse(fs.read_text(argv[0]))
+        print(json.stringify(handle(event)))
+    catch err:
+        print(json.stringify({"reply": "The command handler encountered an error.", "action": "none", "target": ""}))
