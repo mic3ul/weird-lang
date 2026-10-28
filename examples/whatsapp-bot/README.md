@@ -16,3 +16,14 @@ The handler expects normalized event JSON fields: `text`, `sender`, `isGroup`, `
 This is a development prototype, not a production-ready bot. The current public repository still needs the WEIRD 0.6.0 interpreter source and automated runtime tests before this script can be claimed as executable. WhatsApp support depends on the adapter and the account/session being used. Baileys is an unofficial WhatsApp Web integration and can be affected by upstream changes or account restrictions.
 
 Never commit `creds.json`, auth state, session directories, API keys, or personal message exports.
+
+
+## Run the handler integration tests
+
+After building the WEIRD 0.6.0 interpreter at the repository root:
+
+```sh
+python3 examples/whatsapp-bot/tests/test_handler.py
+```
+
+Set `WEIRD_BIN=/absolute/path/to/weird` to test against a different build. These tests exercise the WEIRD command policy only; they do not establish that a WhatsApp account can connect or that server-side group actions succeed.
