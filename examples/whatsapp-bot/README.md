@@ -5,7 +5,7 @@ This directory contains the first WEIRD-side command-policy prototype. The Whats
 ## Current command policy
 
 - `!ping` and `!menu`
-- `!groupinfo` (initial placeholder response)
+- `!groupinfo` (reports the group subject and current participant count)
 - `!tagall` (group admins only; adapter supplies participant list)
 - `!kick @mention`, `!promote @mention`, and `!demote @mention` (group admins and bot-admin status required)
 
