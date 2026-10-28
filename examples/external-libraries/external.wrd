@@ -1,0 +1,23 @@
+# Small WEIRD wrapper for calling allowlisted Node.js package functions.
+# Set WEIRD_EXTERNAL_BRIDGE to the absolute path of bridge.mjs.
+# Set WEIRD_EXTERNAL_ALLOWLIST to a comma-separated list of trusted package names.
+import process
+import json
+
+fn call(package_name, export_name, call_args):
+    let bridge = process.env("WEIRD_EXTERNAL_BRIDGE")
+    if bridge == nil or bridge == "":
+        raise("external.call: set WEIRD_EXTERNAL_BRIDGE to the absolute bridge.mjs path")
+    let request = {
+        "package": package_name,
+        "export": export_name,
+        "args": call_args
+    }
+    let response = process.run(
+        ["node", bridge],
+        {"stdin": json.stringify(request), "timeout": 30, "max_output": 1048576}
+    )
+    let envelope = json.parse(response["stdout"])
+    if get(envelope, "ok", false) != true:
+        raise("external.call: " + get(envelope, "error", "external library call failed"))
+    return get(envelope, "result", nil)

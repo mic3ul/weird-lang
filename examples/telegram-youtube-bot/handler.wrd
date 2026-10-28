@@ -1,0 +1,36 @@
+# Command routing and policy live in WEIRD; the Node.js adapter owns Telegram transport.
+import args
+import fs
+import json
+
+fn result(action, reply, url):
+    return {"action": action, "reply": reply, "url": url}
+
+fn valid_youtube_url(url):
+    return starts_with(url, "https://www.youtube.com/") or starts_with(url, "https://youtube.com/") or starts_with(url, "https://m.youtube.com/") or starts_with(url, "https://music.youtube.com/") or starts_with(url, "https://youtu.be/")
+
+fn handle(event):
+    let text = strip(get(event, "text", ""))
+    let words = split(text, " ")
+    let command = lower(get(words, 0, ""))
+
+    if command == "/start" or command == "/help":
+        return result("reply", "WEIRD YouTube bot\n/info <YouTube URL> — show video details\n/download <YouTube URL> — download and send a video when it is legally available and fits Telegram's upload limit.", "")
+    if command != "/info" and command != "/download":
+        return result("reply", "Use /info or /download followed by a YouTube URL.", "")
+    let url = strip(get(words, 1, ""))
+    if not valid_youtube_url(url):
+        return result("reply", "Send a supported https:// YouTube or youtu.be URL.", "")
+    if command == "/info":
+        return result("info", "", url)
+    return result("download", "", url)
+
+let argv = args.list()
+if len(argv) < 1:
+    print(json.stringify({"action":"reply","reply":"Missing event file.","url":""}))
+else:
+    try:
+        let event = json.parse(fs.read_text(argv[0]))
+        print(json.stringify(handle(event)))
+    catch err:
+        print(json.stringify({"action":"reply","reply":"The command handler failed.","url":""}))

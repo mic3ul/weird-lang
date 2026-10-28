@@ -10,6 +10,7 @@ WEIRD is a C-based scripting language and bytecode runtime intended for command-
 - Practical filesystem, process, JSON, time, and networking APIs.
 - A package ecosystem through [weird-packages](https://github.com/mic3ul/weird-packages).
 - Bot logic written in WEIRD, with messaging transports isolated behind a documented adapter.
+- A prototype external-library bridge for trusted Node.js packages, with JSON-only inputs and outputs.
 - Safe, testable group administration and media workflows where the selected messaging integration permits them.
 
 ## Build and run
@@ -28,18 +29,20 @@ make test
 
 The baseline supports a bytecode VM, lists/maps, functions, imports, exceptions, filesystem/process/args/JSON/time modules, DNS/TCP, optional libcurl HTTP(S), and the WPM package manager. See `docs/` for the exact verified behavior.
 
-## WhatsApp bot direction
+## External libraries
 
-The target is a maintainable bot whose commands and business rules live in WEIRD. A separate transport adapter may be required for WhatsApp events and media. The adapter is not part of the language runtime and must not be described as native functionality until implemented and tested.
+See [examples/external-libraries](examples/external-libraries/README.md) for an experimental adapter that invokes allowlisted Node.js package exports through a subprocess. It supports JSON-compatible calls, not in-process FFI, persistent JavaScript objects, callbacks, or binary streams. Allowed packages run with the current user's OS permissions; the allowlist is not a sandbox.
 
-- Use the official WhatsApp Business Platform when its documented capabilities fit the use case.
-- If evaluating a WhatsApp Web-compatible community library, document its account/session risks, terms, hosting needs, and actual group-management capabilities.
-- Never commit credentials, session databases, or personal chat data.
-- Restrict moderation commands to authorized administrators; validate every target and log destructive actions.
+## Bot examples
+
+- [WhatsApp bot prototype](examples/whatsapp-bot/README.md): WEIRD command logic with a separate Baileys adapter.
+- [Telegram YouTube bot prototype](examples/telegram-youtube-bot/README.md): WEIRD command routing with grammY and yt-dlp-exec for metadata and permitted downloads.
+
+These are prototypes. The adapters have not been verified against live accounts in this environment. Keep tokens and session state out of Git. Review platform rules, dependency security, copyright, and file-size limits before use.
 
 ## Project status
 
-The language baseline and proposed bot integration are not the same thing. Planned features are tracked in [the development roadmap](docs/DEVELOPMENT_ROADMAP.md) and [the bot architecture](docs/WHATSAPP_BOT_ARCHITECTURE.md). At present, GitHub Actions checks the WhatsApp bridge JavaScript syntax and package metadata only; it does not compile WEIRD or run the runtime integration tests. Features are considered complete only after implementation, tests, and documentation are present.
+The language baseline and bot integrations are not the same thing. Planned features are tracked in [the development roadmap](docs/DEVELOPMENT_ROADMAP.md) and [the bot architecture](docs/WHATSAPP_BOT_ARCHITECTURE.md). GitHub Actions checks adapter syntax and external-bridge safety tests only; it does not compile WEIRD or run the full runtime test suite. Features are considered complete only after implementation, tests, and documentation are present.
 
 ## Related project
 

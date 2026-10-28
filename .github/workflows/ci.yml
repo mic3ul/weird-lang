@@ -6,14 +6,22 @@ on:
   workflow_dispatch:
 
 jobs:
-  bridge-syntax:
+  bridge-checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Check WhatsApp bridge JavaScript syntax
+      - name: Check WhatsApp bridge syntax
         run: node --check examples/whatsapp-bot/bridge/index.js
-      - name: Validate bridge package metadata
-        run: node -e "JSON.parse(require('node:fs').readFileSync('examples/whatsapp-bot/bridge/package.json', 'utf8'))"
+      - name: Check external-library bridge and Telegram bot syntax
+        run: |
+          node --check examples/external-libraries/bridge.mjs
+          node --check examples/external-libraries/test-bridge.mjs
+          node --check examples/telegram-youtube-bot/bridge.mjs
+      - name: Test external-library bridge safety checks
+        run: node --test examples/external-libraries/test-bridge.mjs
+      - name: Validate Node package metadata
+        run: |
+          node -e "for (const p of ['examples/whatsapp-bot/bridge/package.json', 'examples/external-libraries/package.json', 'examples/telegram-youtube-bot/package.json']) JSON.parse(require('node:fs').readFileSync(p, 'utf8'))"

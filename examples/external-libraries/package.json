@@ -1,0 +1,12 @@
+{
+  "name": "weird-external-libraries-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check bridge.mjs && node --check test-bridge.mjs",
+    "test": "node --test test-bridge.mjs"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}
