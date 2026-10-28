@@ -37,7 +37,7 @@ fn handle(event):
             return result("This command only works in groups.", "none", "")
         let subject = get(event, "subject", "(unnamed)")
         let participants = get(event, "participants", [])
-        return result("Group: " + subject + "\\nMembers: " + str(len(participants)), "none", "")
+        return result("Group: " + subject + "\nMembers: " + str(len(participants)), "none", "")
 
     if command == "!tagall":
         if not is_group:
