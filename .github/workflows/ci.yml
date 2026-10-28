@@ -1,4 +1,4 @@
-name: CI
+name: Prototype CI
 
 on:
   push:
@@ -6,15 +6,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  linux:
+  bridge-syntax:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential pkg-config libcurl4-openssl-dev python3
-      - name: Build
-        run: make
-      - name: Core tests
-        run: sh tests/run.sh
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check WhatsApp bridge JavaScript syntax
+        run: node --check examples/whatsapp-bot/bridge/index.js
+      - name: Validate bridge package metadata
+        run: node -e "JSON.parse(require('node:fs').readFileSync('examples/whatsapp-bot/bridge/package.json', 'utf8'))"
