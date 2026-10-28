@@ -35,14 +35,16 @@ let chunks = external.call("lodash", "chunk", [[1, 2, 3, 4, 5], 2])
 print(json.stringify(chunks))
 ```
 
-The third argument is a list passed positionally to the selected exported function. Use `"default"` for a package's default export. Dotted export paths are supported, but prototype-related keys are rejected. Arguments and results must be JSON-serializable.
+The third argument is a list passed positionally to the selected exported function. Use `"default"` for a package's default export. Dotted export paths are supported, but prototype-related keys are rejected. Arguments and results must be JSON-serializable. The function may be asynchronous; the bridge waits for its result.
+
+Install packages in this example directory so Node.js can resolve them from `bridge.mjs`. The WEIRD process must have `node` on its PATH. Every call starts a new Node.js process, so package state and live JavaScript objects are not preserved between calls.
 
 ## Security and limitations
 
 - Every package must be named exactly in `WEIRD_EXTERNAL_ALLOWLIST`; the default is deny-all.
 - The allowlist is not a sandbox. An allowed package executes with the operating system permissions of the current user. Install only packages you trust.
-- The bridge has a 1 MiB request limit and the WEIRD wrapper sets a 30-second process timeout and 1 MiB output cap.
-- Calls start a new Node.js process each time; this is simple but has startup overhead and does not preserve JavaScript objects or state between calls.
-- This does not support callbacks, streaming/binary results, live object handles, or asynchronous event subscriptions.
+- The bridge has a 1 MiB request limit and 1 MiB result limit. The WEIRD wrapper sets a 30-second process timeout and a 1 MiB output cap.
+- Calls have subprocess startup overhead and support JSON-compatible values only.
+- Callbacks, streaming/binary results, live object handles, and persistent JavaScript state are not supported.
 - Do not pass secrets or untrusted data to packages without reviewing their behavior.
 - The WEIRD C source tree is not yet restored to this GitHub checkout, so the WEIRD example cannot run from this checkout until the runtime source is committed and built.
