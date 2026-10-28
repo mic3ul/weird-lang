@@ -5,9 +5,17 @@ import process
 import json
 
 fn call(package_name, export_name, call_args):
+    if type(package_name) != "str":
+        raise("external.call: package name must be a string")
+    if type(export_name) != "str":
+        raise("external.call: export name must be a string")
+    if type(call_args) != "list":
+        raise("external.call: arguments must be a list")
+
     let bridge = process.env("WEIRD_EXTERNAL_BRIDGE")
     if bridge == nil or bridge == "":
         raise("external.call: set WEIRD_EXTERNAL_BRIDGE to the absolute bridge.mjs path")
+
     let request = {
         "package": package_name,
         "export": export_name,
@@ -17,7 +25,12 @@ fn call(package_name, export_name, call_args):
         ["node", bridge],
         {"stdin": json.stringify(request), "timeout": 30, "max_output": 1048576}
     )
-    let envelope = json.parse(response["stdout"])
+    if get(response, "timed_out", false):
+        raise("external.call: external library call timed out")
+    if get(response, "code", 1) != 0 and get(response, "stdout", "") == "":
+        raise("external.call: bridge process failed: " + get(response, "stderr", "no details"))
+
+    let envelope = json.parse(get(response, "stdout", ""))
     if get(envelope, "ok", false) != true:
         raise("external.call: " + get(envelope, "error", "external library call failed"))
     return get(envelope, "result", nil)
